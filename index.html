@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quadratic & Polynomial Mindmap</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #134e4a 0%, #064e3b 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #f0fdf4;
+            font-size: clamp(1.8em, 4vw, 2.5em);
+            margin-bottom: 5px;
+            text-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        
+        .subtitle {
+            color: #86efac;
+            font-size: clamp(0.9em, 2vw, 1.1em);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 95vw;
+        }
+        
+        .mindmap-container {
+            position: relative;
+            width: 85vmin;
+            height: 85vmin;
+            max-width: 750px;
+            max-height: 750px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 30px rgba(21, 128, 61, 0.3));
+        }
+        
+        .tooltip {
+            position: fixed;
+            background: rgba(6, 78, 59, 0.98);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 100;
+            border: 1px solid rgba(134, 239, 172, 0.3);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            max-width: 280px;
+            line-height: 1.4;
+        }
+        
+        .tooltip.show { opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Quadratic & Polynomial Algebra</h1>
+        <p class="subtitle">Exploring Roots, Discriminants, and Functional Transformations</p>
+    </header>
+
+    <div class="mindmap-container">
+        <canvas id="mindmapCanvas"></canvas>
+        <div id="tooltip" class="tooltip"></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('mindmapCanvas');
+        const ctx = canvas.getContext('2d');
+        const tooltip = document.getElementById('tooltip');
+        
+        const apps = [
+            { name: "Discriminant MCQ", url: "https://discriminat-quadratic.vercel.app/", color: "#10b981", desc: "Interactive questions on the nature of roots using Δ = b² - 4ac." },
+            { name: "Linear to Quadratic", url: "https://linear-to-quadratic.vercel.app/", color: "#22c55e", desc: "Visualizing the transition from first to second-degree equations." },
+            { name: "Hyperbola & Quadratic", url: "https://hyperbola-quadratic.vercel.app/", color: "#16a34a", desc: "The relationship between quadratic forms and reciprocal functions." },
+            { name: "Polynomial Intro", url: "https://simultaneous-polynomial.vercel.app/", color: "#15803d", desc: "Introduction to higher-order polynomials and simultaneous solving." },
+            { name: "Vieta's Formulas", url: "https://why-factorise-quadratic-with-vietas.vercel.app/", color: "#166534", desc: "Why we factorise: exploring the sum and product of roots." },
+            { name: "Pre-Vieta Logic", url: "https://why-factorise-quadratics-pre-vieta.vercel.app/", color: "#14532d", desc: "Conceptual foundations before formalising Vieta's relationships." },
+            { name: "Completing Square 1", url: "https://completing-the-square.vercel.app/", color: "#065f46", desc: "Geometric and algebraic guide to the square-completion method." },
+            { name: "Completing Square 2", url: "https://complete-squarea-1.vercel.app/#/2", color: "#064e3b", desc: "Advanced practice and visual models for a=1 and a≠1." },
+            { name: "Root Analysis", url: "https://leelemacjames.github.io/quadraticDiscriminant/", color: "#059669", desc: "Comprehensive dashboard for quadratic discriminant behavior." }
+        ];
+
+        let hoveredSlice = -1;
+        let hoveredCenter = false;
+
+        function initCanvas() {
+            const container = document.querySelector('.mindmap-container');
+            const size = Math.min(container.offsetWidth, container.offsetHeight);
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = size * dpr;
+            canvas.height = size * dpr;
+            ctx.scale(dpr, dpr);
+        }
+
+        function drawMindmap() {
+            const size = canvas.width / (window.devicePixelRatio || 1);
+            const centerX = size / 2;
+            const centerY = size / 2;
+            const outerRadius = size * 0.38;
+            const innerRadius = size * 0.14;
+            
+            ctx.clearRect(0, 0, size, size);
+            const sliceAngle = (Math.PI * 2) / apps.length;
+            
+            apps.forEach((app, i) => {
+                const angleMid = i * sliceAngle - Math.PI / 2 + sliceAngle / 2;
+                const startAngle = i * sliceAngle - Math.PI / 2;
+                const endAngle = startAngle + sliceAngle;
+                const isHovered = hoveredSlice === i;
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                const currentRadius = isHovered ? outerRadius + 15 : outerRadius;
+                ctx.arc(centerX, centerY, currentRadius, startAngle, endAngle);
+                ctx.closePath();
+                
+                ctx.fillStyle = app.color;
+                ctx.globalAlpha = isHovered ? 1.0 : 0.75;
+                ctx.fill();
+                
+                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(angleMid);
+                
+                const normAngle = ((angleMid + Math.PI / 2) % (Math.PI * 2) + (Math.PI * 2)) % (Math.PI * 2);
+                const isLeftSide = (normAngle > Math.PI && normAngle < Math.PI * 2);
+
+                ctx.fillStyle = "white";
+                ctx.font = isHovered ? "bold 13px Segoe UI" : "11px Segoe UI";
+
+                if (isLeftSide) {
+                    ctx.rotate(Math.PI);
+                    ctx.textAlign = "left";
+                    ctx.fillText(app.name, -outerRadius + 15, 5);
+                } else {
+                    ctx.textAlign = "right";
+                    ctx.fillText(app.name, outerRadius - 15, 5);
+                }
+                
+                ctx.restore();
+            });
+
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
+            ctx.fillStyle = hoveredCenter ? '#ffffff' : '#064e3b';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(134, 239, 172, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.fillStyle = hoveredCenter ? '#064e3b' : '#86efac';
+            ctx.textAlign = 'center';
+            ctx.font = 'bold 13px Segoe UI';
+            ctx.fillText('QUADRATIC', centerX, centerY - 2);
+            ctx.font = '10px Segoe UI';
+            ctx.fillText('FUNCTIONS', centerX, centerY + 14);
+        }
+
+        function getMousePos(evt) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (evt.clientX - rect.left) * (canvas.width / (window.devicePixelRatio || 1) / rect.width),
+                y: (evt.clientY - rect.top) * (canvas.height / (window.devicePixelRatio || 1) / rect.height)
+            };
+        }
+
+        canvas.addEventListener('mousemove', (e) => {
+            const pos = getMousePos(e);
+            const size = canvas.width / (window.devicePixelRatio || 1);
+            const centerX = size / 2;
+            const centerY = size / 2;
+            
+            const dx = pos.x - centerX;
+            const dy = pos.y - centerY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            const innerRadius = size * 0.14;
+            const outerRadius = size * 0.38;
+
+            if (dist < innerRadius) {
+                hoveredCenter = true;
+                hoveredSlice = -1;
+                tooltip.classList.remove('show');
+                canvas.style.cursor = 'pointer';
+            } else if (dist < outerRadius + 15) {
+                hoveredCenter = false;
+                let angle = Math.atan2(dy, dx) + Math.PI / 2;
+                if (angle < 0) angle += Math.PI * 2;
+                hoveredSlice = Math.floor(angle / ((Math.PI * 2) / apps.length));
+                
+                const app = apps[hoveredSlice];
+                tooltip.innerHTML = `<strong>${app.name}</strong><br>${app.desc}`;
+                tooltip.style.left = (e.clientX + 15) + 'px';
+                tooltip.style.top = (e.clientY + 15) + 'px';
+                tooltip.classList.add('show');
+                canvas.style.cursor = 'pointer';
+            } else {
+                hoveredSlice = -1;
+                hoveredCenter = false;
+                tooltip.classList.remove('show');
+                canvas.style.cursor = 'default';
+            }
+            drawMindmap();
+        });
+
+        canvas.addEventListener('click', () => {
+            if (hoveredSlice !== -1) {
+                window.open(apps[hoveredSlice].url, '_blank');
+            } else if (hoveredCenter) {
+                window.open('https://leelemacjames.github.io/thematicPhysics/', '_blank');
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            initCanvas();
+            drawMindmap();
+        });
+        
+        initCanvas();
+        drawMindmap();
+    </script>
+</body>
+</html>
