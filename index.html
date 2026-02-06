@@ -3,51 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quadratic & Polynomial Mindmap</title>
+    <title>Quadratic & Polynomial Mindmap - High Resolution</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #134e4a 0%, #064e3b 100%);
+            background: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
             height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 10px;
             overflow: hidden;
         }
         
         header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
+            z-index: 10;
         }
         
         h1 {
             color: #f0fdf4;
-            font-size: clamp(1.8em, 4vw, 2.5em);
+            font-size: clamp(1.8em, 5vw, 2.8em);
             margin-bottom: 5px;
-            text-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+            text-shadow: 0 4px 12px rgba(0,0,0,0.5);
             font-weight: 300;
-            letter-spacing: 2px;
         }
         
         .subtitle {
             color: #86efac;
             font-size: clamp(0.9em, 2vw, 1.1em);
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 95vw;
         }
         
         .mindmap-container {
             position: relative;
-            width: 85vmin;
-            height: 85vmin;
-            max-width: 750px;
-            max-height: 750px;
+            /* Increased vmin for a much larger circle */
+            width: 92vmin; 
+            height: 92vmin;
+            max-width: 900px;
+            max-height: 900px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -56,24 +54,24 @@
         canvas {
             width: 100%;
             height: 100%;
-            filter: drop-shadow(0 0 30px rgba(21, 128, 61, 0.3));
+            filter: drop-shadow(0 0 40px rgba(0,0,0,0.6));
         }
         
         .tooltip {
             position: fixed;
-            background: rgba(6, 78, 59, 0.98);
+            background: rgba(6, 30, 24, 0.98);
             color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
+            padding: 14px 22px;
+            border-radius: 10px;
             font-size: 14px;
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.2s;
             z-index: 100;
-            border: 1px solid rgba(134, 239, 172, 0.3);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            max-width: 280px;
-            line-height: 1.4;
+            border: 1px solid rgba(134, 239, 172, 0.4);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+            max-width: 300px;
+            line-height: 1.5;
         }
         
         .tooltip.show { opacity: 1; }
@@ -82,7 +80,7 @@
 <body>
 
     <header>
-        <h1>Quadratic & Polynomial Algebra</h1>
+        <h1>Quadratic & Polynomials</h1>
         <p class="subtitle">Exploring Roots, Discriminants, and Functional Transformations</p>
     </header>
 
@@ -124,8 +122,10 @@
             const size = canvas.width / (window.devicePixelRatio || 1);
             const centerX = size / 2;
             const centerY = size / 2;
-            const outerRadius = size * 0.38;
-            const innerRadius = size * 0.14;
+            
+            // Scaled radii for a "Bigger" look
+            const outerRadius = size * 0.45; // Maxed out fill
+            const innerRadius = size * 0.12; // Slightly smaller center to give text more room
             
             ctx.clearRect(0, 0, size, size);
             const sliceAngle = (Math.PI * 2) / apps.length;
@@ -138,18 +138,19 @@
                 
                 ctx.beginPath();
                 ctx.moveTo(centerX, centerY);
-                const currentRadius = isHovered ? outerRadius + 15 : outerRadius;
+                const currentRadius = isHovered ? outerRadius + 8 : outerRadius;
                 ctx.arc(centerX, centerY, currentRadius, startAngle, endAngle);
                 ctx.closePath();
                 
                 ctx.fillStyle = app.color;
-                ctx.globalAlpha = isHovered ? 1.0 : 0.75;
+                ctx.globalAlpha = isHovered ? 1.0 : 0.8;
                 ctx.fill();
                 
-                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+                ctx.lineWidth = 2;
                 ctx.stroke();
 
+                // Advanced Text Positioning
                 ctx.save();
                 ctx.translate(centerX, centerY);
                 ctx.rotate(angleMid);
@@ -158,34 +159,39 @@
                 const isLeftSide = (normAngle > Math.PI && normAngle < Math.PI * 2);
 
                 ctx.fillStyle = "white";
-                ctx.font = isHovered ? "bold 13px Segoe UI" : "11px Segoe UI";
+                // Font size scales with the circle size
+                const fontSize = Math.max(10, Math.floor(size / 55));
+                ctx.font = isHovered ? `bold ${fontSize + 2}px Segoe UI` : `${fontSize}px Segoe UI`;
 
                 if (isLeftSide) {
                     ctx.rotate(Math.PI);
                     ctx.textAlign = "left";
-                    ctx.fillText(app.name, -outerRadius + 15, 5);
+                    // Padding adjusted for the bigger radius
+                    ctx.fillText(app.name, -outerRadius + 20, fontSize / 3);
                 } else {
                     ctx.textAlign = "right";
-                    ctx.fillText(app.name, outerRadius - 15, 5);
+                    ctx.fillText(app.name, outerRadius - 20, fontSize / 3);
                 }
                 
                 ctx.restore();
             });
 
+            // Center Ring
             ctx.beginPath();
             ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
-            ctx.fillStyle = hoveredCenter ? '#ffffff' : '#064e3b';
+            ctx.fillStyle = hoveredCenter ? '#ffffff' : '#042f2e';
             ctx.fill();
-            ctx.strokeStyle = 'rgba(134, 239, 172, 0.8)';
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'rgba(134, 239, 172, 0.9)';
+            ctx.lineWidth = 3;
             ctx.stroke();
 
             ctx.fillStyle = hoveredCenter ? '#064e3b' : '#86efac';
             ctx.textAlign = 'center';
-            ctx.font = 'bold 13px Segoe UI';
-            ctx.fillText('QUADRATIC', centerX, centerY - 2);
-            ctx.font = '10px Segoe UI';
-            ctx.fillText('FUNCTIONS', centerX, centerY + 14);
+            const centerFontSize = Math.max(12, Math.floor(size / 50));
+            ctx.font = `bold ${centerFontSize}px Segoe UI`;
+            ctx.fillText('QUADRATIC', centerX, centerY - (centerFontSize / 6));
+            ctx.font = `${centerFontSize * 0.7}px Segoe UI`;
+            ctx.fillText('ALGEBRA', centerX, centerY + (centerFontSize * 0.8));
         }
 
         function getMousePos(evt) {
@@ -205,8 +211,8 @@
             const dx = pos.x - centerX;
             const dy = pos.y - centerY;
             const dist = Math.sqrt(dx*dx + dy*dy);
-            const innerRadius = size * 0.14;
-            const outerRadius = size * 0.38;
+            const innerRadius = size * 0.12;
+            const outerRadius = size * 0.45;
 
             if (dist < innerRadius) {
                 hoveredCenter = true;
@@ -221,8 +227,8 @@
                 
                 const app = apps[hoveredSlice];
                 tooltip.innerHTML = `<strong>${app.name}</strong><br>${app.desc}`;
-                tooltip.style.left = (e.clientX + 15) + 'px';
-                tooltip.style.top = (e.clientY + 15) + 'px';
+                tooltip.style.left = (e.clientX + 20) + 'px';
+                tooltip.style.top = (e.clientY + 20) + 'px';
                 tooltip.classList.add('show');
                 canvas.style.cursor = 'pointer';
             } else {
